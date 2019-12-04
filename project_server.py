@@ -1,74 +1,149 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from database_setup import Base, Restaurant, MenuItem
 
 app = Flask(__name__)
 
 
-# Fake Restaurants
-restaurant = {'name': 'The CRUDdy Crab', 'id': '1'}
+# # Fake Restaurants
+# restaurant = {'name': 'The CRUDdy Crab', 'id': '1'}
+#
+# restaurants = [{'name': 'The CRUDdy Crab', 'id': '1'},
+#                {'name': 'Blue Burgers', 'id': '2'},
+#                {'name': 'Taco Hut', 'id': '3'}]
+#
+# # Fake Menu Items
+# item = {'name': 'Cheese Pizza', 'description': 'made with fresh cheese', 'price': '$5.99', 'course': 'Entree'}
+#
+# items = [
+#     {'name': 'Cheese Pizza', 'description': 'made with cheese', 'price': '$5.99', 'course': 'Entree', 'id': '1'},
+#     {'name': 'Chocolate Cake', 'description': 'made with Choco', 'price': '$3.99', 'course': 'Dessert', 'id': '2'},
+#     {'name': 'Caesar Salad', 'description': 'with fresh vegetables', 'price': '$5.99', 'course': 'Entree', 'id': '3'},
+#     {'name': 'Iced Tea', 'description': 'with lemon', 'price': '$.99', 'course': 'Beverage', 'id': '4'},
+#     {'name': 'Spinach Dip', 'description': 'with spinach', 'price': '$1.99', 'course': 'Appetizer', 'id': '5'}]
 
-restaurants = [{'name': 'The CRUDdy Crab', 'id': '1'},
-               {'name': 'Blue Burgers', 'id': '2'},
-               {'name': 'Taco Hut', 'id': '3'}]
-
-# Fake Menu Items
-item = {'name': 'Cheese Pizza', 'description': 'made with fresh cheese', 'price': '$5.99', 'course': 'Entree'}
-
-items = [
-    {'name': 'Cheese Pizza', 'description': 'made with cheese', 'price': '$5.99', 'course': 'Entree', 'id': '1'},
-    {'name': 'Chocolate Cake', 'description': 'made with Chocolate', 'price': '$3.99', 'course': 'Dessert', 'id': '2'},
-    {'name': 'Caesar Salad', 'description': 'with fresh vegetables', 'price': '$5.99', 'course': 'Entree', 'id': '3'},
-    {'name': 'Iced Tea', 'description': 'with lemon', 'price': '$.99', 'course': 'Beverage', 'id': '4'},
-    {'name': 'Spinach Dip', 'description': 'with spinach', 'price': '$1.99', 'course': 'Appetizer', 'id': '5'}]
+engine = create_engine('sqlite:///restaurantmenu.db')
+Base.metadata.bind = engine
 
 
+# Show all restaurants
 @app.route('/')
 @app.route('/restaurants/')
 def show_restaurants():
-    # return "This page will show all restaurants"
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    restaurants = session.query(Restaurant).all()
     return render_template('restaurants.html', restaurants=restaurants)
 
 
-@app.route('/restaurant/new')
+# Make a new Restaurant
+@app.route('/restaurant/new', methods=['GET', 'POST'])
 def new_restaurant():
-    # return "This page will be used to make new restaurants"
-    return render_template('newRestaurant.html')
+    if request.method == 'POST':
+        DBSession = sessionmaker(bind=engine)
+        session = DBSession()
+        new_restaurant = Restaurant(name=request.form['name'])
+        session.add(new_restaurant)
+        session.commit()
+        return redirect(url_for('show_restaurants'))
+    else:
+        return render_template('newRestaurant.html')
 
 
+# Edit an existing restaurant
 @app.route('/restaurant/<int:restaurant_id>/edit', methods=['GET', 'POST'])
 def edit_restaurant(restaurant_id):
-    # return "This page will be used to edit a restaurant"
-    return render_template('editRestaurant.html', restaurant=restaurant)
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    restaurant_to_be_edited = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            restaurant_to_be_edited.name = request.form['name']
+            session.add(restaurant_to_be_edited)
+            session.commit()
+        return redirect(url_for('show_restaurants'))
+    else:
+        return render_template('editRestaurant.html', restaurant=restaurant_to_be_edited)
 
 
-@app.route('/restaurant/<int:restaurant_id>/delete')
+# Delete an existing restaurant
+@app.route('/restaurant/<int:restaurant_id>/delete', methods=['GET', 'POST'])
 def delete_restaurant(restaurant_id):
-    # return "This page will be used to delete an existing restaurant"
-    return render_template('deleteRestaurant.html', restaurant=restaurant)
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    restaurant_to_be_deleted = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    if request.method == 'POST':
+        session.delete(restaurant_to_be_deleted)
+        session.commit()
+        return redirect(url_for('show_restaurants'))
+    else:
+        return render_template('deleteRestaurant.html', restaurant=restaurant_to_be_deleted)
 
 
+# Show menu items for a restaurant
 @app.route('/restaurant/<int:restaurant_id>/')
 @app.route('/restaurant/<int:restaurant_id>/menu')
 def show_menu(restaurant_id):
-    # return "This page will be used to show menu of the given restaurant"
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    items = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
     return render_template('menu.html', restaurant=restaurant, items=items)
 
 
-@app.route('/restaurant/<int:restaurant_id>/menu/new')
+# Create new menu item
+@app.route('/restaurant/<int:restaurant_id>/menu/new', methods=['GET', 'POST'])
 def new_menu_item(restaurant_id):
-    # return "This page will be used to add a new menu item"
-    return render_template('newMenuItem.html', restaurant=restaurant)
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    if request.method == 'POST':
+        new_item = MenuItem(name = request.form['name'],
+                            description = request.form['description'],
+                            price = request.form['price'],
+                            course = request.form['course'],
+                            restaurant_id = restaurant_id)
+        session.add(new_item)
+        session.commit()
+        return redirect(url_for('show_menu', restaurant_id=restaurant_id))
+    else:
+        return render_template('newMenuItem.html', restaurant_id=restaurant_id)
 
 
-@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit')
+# Edit an existing menu item
+@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
 def edit_menu_item(restaurant_id, menu_id):
-    # return "This page will be used to update a menu item of the given restaurant"
-    return render_template('editMenuItem.html', item=item)
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    item_to_be_edited = session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            item_to_be_edited.name = request.form['name']
+        if request.form['description']:
+            item_to_be_edited.description = request.form['description']
+        if request.form['price']:
+            item_to_be_edited.price = request.form['price']
+        if request.form['course']:
+            item_to_be_edited.course = request.form['course']
+        session.add(item_to_be_edited)
+        session.commit()
+        return redirect(url_for('show_menu', restaurant_id=restaurant_id))
+    else:
+        return render_template('editMenuItem.html', item=item_to_be_edited)
 
 
-@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete')
+# Delete an existing menu_item
+@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
 def delete_menu_item(restaurant_id, menu_id):
-    # return "This page will be used to delete a menu item of the given restaurant"
-    return render_template('deleteMenuItem.html', item=item)
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    item_to_be_deleted = session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method == 'POST':
+        session.delete(item_to_be_deleted)
+        session.commit()
+        return redirect(url_for('show_menu', restaurant_id=restaurant_id))
+    else:
+        return render_template('deleteMenuItem.html', item=item_to_be_deleted)
 
 
 if __name__ == '__main__':
