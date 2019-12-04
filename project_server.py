@@ -22,7 +22,7 @@ items = [
 
 
 @app.route('/')
-@app.route('/restaurants')
+@app.route('/restaurants/')
 def show_restaurants():
     # return "This page will show all restaurants"
     return render_template('restaurants.html', restaurants=restaurants)
