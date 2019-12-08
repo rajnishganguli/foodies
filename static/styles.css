@@ -4,7 +4,7 @@ body            {   font-family: sans-serif;
 
 h1, h2, h3, h4  { color: #CCCCCC; }
 h1, h2          { font-family: 'Georgia', serif; margin: 0; }
-h1              { border-bottom: 2px solid #eee; }
+h1              { border-bottom: 3px solid #eee; }
 h2              { font-size: 1.2em; }
 
 p               { color: #CCCCCC;}
@@ -14,19 +14,26 @@ a { text-decoration: none;
     font-size: .75em;}
 
 .pane { position:absolute;
-        left: 25%;
         border: 2px solid;
         border-radius: 25px;
-        padding: 5px;
-        margin: 5px;
+        padding: 15px;
+        margin: 20px 25% 0 25%;
         border-color: #999999;
-        background-color: #333333; }
+        background-color: #333333;}
 
-.header {left:50%;
+.category {
+    border-bottom: solid 2px grey;
+}
+
+.item {
+    border-bottom: solid 1px grey;
+}
+
+.header {left: 50%;
          text-align: center;}
 
-.name { width:50%;display:
-        inline-block;
+.name { width: 50%;
+        display: inline-block;
         float: left;}
 
 .description {}
