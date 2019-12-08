@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 
+from flask_login import UserMixin
+
 Base = declarative_base()
 
 
@@ -42,6 +44,13 @@ class MenuItem(Base):
             'price': self.price,
             'course': self.course,
         }
+
+class User(Base, UserMixin):
+    __tablename__ = 'user'
+    id = Column(String, primary_key=True)
+    name = Column(String(64))
+    email = Column(String(90), index=True)
+    profile_pic = Column(String)
 
 
 engine = create_engine('sqlite:///restaurantmenu.db')
