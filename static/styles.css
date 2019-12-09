@@ -9,6 +9,16 @@ h2              { font-size: 1.2em; }
 
 p               { color: #CCCCCC;}
 
+.left {
+    color: #CCCCCC
+
+}
+
+.right{
+    color: #CCCCCC
+
+}
+
 a { text-decoration: none;
     color:#FFFFCC;
     font-size: .75em;}
@@ -23,6 +33,10 @@ a { text-decoration: none;
 
 .category {
     border-bottom: solid 2px grey;
+}
+
+.restaurant {
+    font-size: 25px
 }
 
 .item {
