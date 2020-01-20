@@ -9,15 +9,9 @@ h2              { font-size: 1.2em; }
 
 p               { color: #CCCCCC;}
 
-.left {
-    color: #CCCCCC
+.left { color: #CCCCCC }
 
-}
-
-.right{
-    color: #CCCCCC
-
-}
+.right{ color: #CCCCCC }
 
 a { text-decoration: none;
     color:#FFFFCC;
@@ -31,17 +25,11 @@ a { text-decoration: none;
         border-color: #999999;
         background-color: #333333;}
 
-.category {
-    border-bottom: solid 2px grey;
-}
+.category { border-bottom: solid 2px grey; }
 
-.restaurant {
-    font-size: 25px
-}
+.restaurant { font-size: 25px }
 
-.item {
-    border-bottom: solid 1px grey;
-}
+.item { border-bottom: solid 1px grey;}
 
 .header {left: 50%;
          text-align: center;}
@@ -50,12 +38,12 @@ a { text-decoration: none;
         display: inline-block;
         float: left;}
 
-.description {}
-
 .price {text-align: right;
         width:50%;
         float: right; }
 
+.flash { background: #cee5F5; }
+
 .editdeletepane{}
 
-.flash { background: #cee5F5; }
+.description {}
