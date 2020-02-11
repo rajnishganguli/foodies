@@ -1,6 +1,11 @@
-It is simple food app.
+Description
+-----------
+It is simple food app that stores restaurants and their menus. 
+It supports addition of new restaurants, new menu items as well as ability to update and delete them.
+It has REST API endpoints to gather restaurant data as JSON. The APIs are protected with google sign-in(OAuth 2.0).
 
 Getting started:
+----------------
 0: Run following command to install all the dependencies.
 
 pip install -r requirements.txt
